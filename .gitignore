@@ -1,0 +1,42 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Environment 
+.env
+
+# Storage (data stays local, not in git)
+storage/raw/
+storage/chunks/
+storage/index/
+datasets/raw/
+datasets/processed/
+
+# Models (too large for git)
+models/
+*.bin
+*.safetensors
+*.gguf
+*.mlx
+
+# MLX cache
+.mlx_cache/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+
