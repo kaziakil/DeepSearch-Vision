@@ -1,6 +1,7 @@
 from pathlib import Path 
 from PIL import Image
 import fitz 
+# import platform
 import numpy as np
 from paddleocr import PaddleOCR
 from backend.models.document import TextBlock, BoundingBox
@@ -16,21 +17,24 @@ class OCRPipeline:
     """
 
     def __init__(self):
+        # logger.info("loading_paddleocr")
+        # # use_angle_cls: handles rotated text
+        # # lang: english, swap to 'ch' for Chinese etc.
+        # self.ocr = PaddleOCR(
+        #     use_angle_cls= True,
+        #     lang="en",
+        #     show_log=False,
+        # )
+        # logger.info(
+        #     "ocr_device",
+        #     gpu=False,
+        #     engine="paddleocr",
+        #     lang="en")
+        # logger.info("paddleocr_loaded")
         logger.info("loading_paddleocr")
-        # use_angle_cls: handles rotated text
-        # lang: english, swap to 'ch' for Chinese etc.
-        self.ocr = PaddleOCR(
-            use_angle_cls=True,
-            lang="en",
-            use_gpu=False,  # PaddleOCR currently runs on CPU on Apple Silicon
-            show_log=False
-        )
-        logger.info(
-            "ocr_device",
-            gpu=False,
-            engine="paddleocr",
-            lang="en")
+        self.ocr = PaddleOCR(lang="en")
         logger.info("paddleocr_loaded")
+
 
     def extract_from_pdf(self, pdf_path: Path) -> list[TextBlock]:
         """
