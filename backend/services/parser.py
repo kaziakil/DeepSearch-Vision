@@ -11,7 +11,7 @@ class PDFParser:
     Falls back to PaddleOCR signal when text extraction is empty.
     """
 
-    # Region classicification thresholds (relative to page height)
+    # Region classification thresholds (relative to page height)
     HEADER_THRESHOLD = 0.10
     FOOTER_THRESHOLD = 0.90
     MIN_TEXT_LENGTH = 10     # skip noise blocks
@@ -25,7 +25,7 @@ class PDFParser:
         doc = fitz.open(str(pdf_path))
         blocks: list[TextBlock] = []
 
-        logger.into("parsing_pdf", 
+        logger.info("parsing_pdf", 
                     path=str(pdf_path),
                     pages=doc.page_count)
         
@@ -33,11 +33,11 @@ class PDFParser:
             page_height = page.rect.height
             page_width = page.rect.width
 
-            # Extract dict give us blocks with full spatial metadata
-            raw_blocks = page.get_text("dist")["blocks"]
+            # Extract dict gives us blocks with full spatial metadata
+            raw_blocks = page.get_text("dict")["blocks"]
 
             for block in raw_blocks:
-                # Skip image blocks – handle by OCR pipeline
+                # Skip image blocks — handled by OCR pipeline
                 if block["type"] != 0:
                     continue
 
@@ -52,27 +52,32 @@ class PDFParser:
                     continue
 
                 x0, y0, x1, y1 = block["bbox"]
-                region = self.classify_region(y0, y1, page_height)
+                region = self._classify_region(y0, y1, page_height)
 
                 blocks.append(TextBlock(
                     text=text,
                     page=page_num,
                     bbox=BoundingBox(x0=x0, y0=y0, x1=x1, y1=y1),
-                    region_type = region,
+                    region_type=region,
                     source="pymupdf"
                 ))
 
+        # BUG FIX 1: save page_count before closing the document
+        page_count = doc.page_count
         doc.close()
+
         logger.info("pdf_parsed",
                     path=str(pdf_path),
                     blocks_extracted=len(blocks))
-        return blocks, doc.page_count
+
+        # BUG FIX 2: return saved page_count variable, not doc.page_count
+        return blocks, page_count
     
-    def _classify_region (self, y0: float, y1: float,
-                          page_height: float) -> str:
+    def _classify_region(self, y0: float, y1: float,
+                         page_height: float) -> str:
         """
         Classifies block as header/footer/body based on 
-        vertical positon relative to page height.
+        vertical position relative to page height.
         """
         relative_top = y0 / page_height
         relative_bottom = y1 / page_height
@@ -96,5 +101,3 @@ class PDFParser:
         doc.close()
         return len(total_text.strip()) < 50
     
-
-
