@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     TOP_K_SPARSE: int = 20
     TOP_K_FINAL: int = 5
 
+    CHUNK_MAX_CHARS: int = 800
+    CHUNK_MIN_CHARS: int = 50
+    CHUNK_OVERLAP_CHARS: int = 100
+
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore", # Ignore unknown env vars
