@@ -127,27 +127,14 @@ class Chunker:
                         current_overlap_chars += len(prev_block.text)
                         if current_overlap_chars >= self.OVERLAP_CHARS:
                             break
-                    if active_header_block:
-                        buffer_blocks = (
-                            [active_header_block]
-                            + overlap_blocks
-                            + [block]
-                        )
-                    else:
-                        buffer_blocks = overlap_blocks + [block]
+                    buffer_blocks = overlap_blocks + [block]
                     buffer_text = self._blocks_to_text(buffer_blocks)
                 else:
-                    if active_header_block:
-                        buffer_blocks = [active_header_block, block]
-                    else:
-                        buffer_blocks = [block]
+                    buffer_blocks = [block]
                     buffer_text = self._blocks_to_text(buffer_blocks)
             else:
                 if not buffer_text:
-                    if active_header_block:
-                        buffer_blocks = [active_header_block, block]
-                    else:
-                        buffer_blocks = [block]
+                    buffer_blocks = [block]
                     buffer_text = self._blocks_to_text(buffer_blocks)
                 else:
                     buffer_blocks.append(block)
