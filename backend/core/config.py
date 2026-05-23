@@ -9,17 +9,24 @@ class Settings(BaseSettings):
     STORAGE_RAW: Path = Path("storage/raw")
     STORAGE_CHUNKS: Path = Path("storage/chunks")
 
+    DENSE_DIM: int = 1024
+
     QDRANT_HOST: str = "localhost"
     QDRANT_PORT: int = 6333
     QDRANT_COLLECTION: str = "deepsearch"
 
     EMBEDDING_MODEL: str = "BAAI-bge-m3"
-    RERANKER_MODEL: str = "BAAI/bge-reranker-base"
+    # RERANKER_MODEL: str = "BAAI/bge-reranker-base"
+    RERANKER_MODEL: str = "BAAI/bge-reranker-v2-m3"  # better than bge-reranker-base
     VLM_MODEL: str = "Qwen/Qwen2-VL-2B-Instruct"
 
     TOP_K_DENSE: int = 20
     TOP_K_SPARSE: int = 20
     TOP_K_FINAL: int = 5
+
+    MAX_RERANK_CHARS: int = 2000
+
+    USE_FP16: bool = True
 
     CHUNK_MAX_CHARS: int = 800
     CHUNK_MIN_CHARS: int = 50
