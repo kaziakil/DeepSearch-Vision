@@ -4,9 +4,11 @@ from pathlib import Path
 from backend.services.parser import PDFParser
 from backend.services.ocr import OCRPipeline
 from backend.services.chunker import Chunker
-from backend.models.document import IngestedDocument
+from backend.models.document import IngestedDocument, DocumentChunk
 from backend.core.config import settings
 from backend.utils.logger import logger
+from backend.services.vector_store import VectorStore
+from backend.services.embedding import embedding_service
 
 
 class IngestionService:
@@ -19,8 +21,15 @@ class IngestionService:
 
     def __init__(self):
         self.parser = PDFParser()
-        self.ocr = OCRPipeline()
+        self._ocr = None
         self.chunker = Chunker()
+        self.store = VectorStore()
+
+    @property
+    def ocr(self):
+        if self._ocr is None:
+            self._ocr = OCRPipeline()
+        return self._ocr
 
     def ingest(self, file_path: Path) -> IngestedDocument:
         suffix = file_path.suffix.lower()
@@ -66,6 +75,12 @@ class IngestionService:
         except Exception as e:
             logger.error("chunking_failed", error=str(e), document_id=document_id)
             raise
+
+        # Embed + Index
+        logger.info("embedding_chunks", count=len(chunks))
+        texts = [c.text for c in chunks]
+        embeddings = embedding_service.embed(texts)
+        self.store.upsert_chunks(chunks, embeddings)
 
         document = IngestedDocument(
             document_id=document_id,
