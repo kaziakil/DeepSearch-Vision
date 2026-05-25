@@ -6,7 +6,7 @@
 
 ## Overview
 
-DeepSearch Vision is a production-grade multimodal document intelligence system. It ingests PDFs, images, invoices, research papers, and screenshots — then answers natural language queries with responses grounded to exact source pages and bounding boxes.
+DeepSearch Vision is a production-grade multimodal document intelligence system. It ingests PDFs, images, invoices, research papers, and screenshots; then answers natural language queries with responses grounded to exact source pages and bounding boxes.
 
 This is not "chat with PDF." It is a full retrieval stack built from first principles:
 
@@ -35,10 +35,10 @@ Everything runs locally. No OpenAI API. No cloud GPU. No paid services.
 │              /upload  /search  /query  /citations           │
 └──────┬──────────────────┬──────────────────┬────────────────┘
        │                  │                  │
-┌──────▼──────┐  ┌────────▼───────┐  ┌──────▼──────────────┐
+┌──────▼──────┐  ┌────────▼───────┐  ┌───────▼─────────────┐
 │  Ingestion  │  │   Retrieval    │  │   Generation Layer  │
 │             │  │                │  │                     │
-│ PaddleOCR   │  │ BGE-M3 Dense   │  │ Qwen2-VL 2B (MLX)   │
+│ EasyOCR     │  │ BGE-M3 Dense   │  │ Qwen2-VL 2B (MLX)   │
 │ PyMuPDF     │  │ BGE-M3 Sparse  │  │ LangGraph Agent     │
 │ Layout Parse│  │ BM25Okapi      │  │ Citation Grounder   │
 │ Chunker     │  │ RRF Fusion     │  │                     │
@@ -56,7 +56,7 @@ Everything runs locally. No OpenAI API. No cloud GPU. No paid services.
 
 ### Ingestion Pipeline
 - Layout-aware PDF parsing with PyMuPDF block extraction
-- PaddleOCR with bounding box coordinates preserved end-to-end
+- EasyOCR with bounding box coordinates preserved end-to-end (M1 native — replaces PaddleOCR 3.x, broken on macOS)
 - Region-aware chunking (header, body, table, figure, footer)
 - Async indexing workers via Dramatiq + Redis
 
@@ -95,12 +95,12 @@ Everything runs locally. No OpenAI API. No cloud GPU. No paid services.
 |---|---|
 | Frontend | Next.js, TailwindCSS, shadcn/ui |
 | Backend | FastAPI, Pydantic, Uvicorn |
-| OCR | PaddleOCR, PyMuPDF |
+| OCR | EasyOCR, PyMuPDF |
 | Embeddings | BGE-M3 (BAAI/bge-m3) |
 | VLM | Qwen2-VL 2B (MLX), SmolVLM |
 | Vector DB | Qdrant (local Docker) |
 | Sparse Retrieval | BM25Okapi |
-| Reranker | BGE Reranker Base |
+| Reranker | BGE Reranker v2 M3 (BAAI/bge-reranker-v2-m3) |
 | Agent | LangGraph |
 | Inference Runtime | MLX, PyTorch MPS |
 | Task Queue | Dramatiq + Redis |
